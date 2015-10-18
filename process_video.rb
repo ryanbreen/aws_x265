@@ -4,6 +4,8 @@ def usage
   exit
 end
 
+require 'fileutils'
+
 usage unless ARGV.length == 1
 
 file = ARGV[0]
@@ -26,3 +28,5 @@ system "vagrant destroy -f"
 
 # Copy movie down
 system "aws s3 cp \"s3://ryanbreen.media/#{target_file}\" \"#{File.dirname(file)}\""
+
+FileUtils.touch File.join(File.dirname(file), target_file), :mtime => File.mtime(file)
