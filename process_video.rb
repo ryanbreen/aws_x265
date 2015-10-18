@@ -8,10 +8,15 @@ usage unless ARGV.length == 1
 
 file = ARGV[0]
 target_file = "#{File.basename(file, File.extname(file))}.x265.mkv"
-puts "Converting #{file} to #{target_name}"
+puts "Converting #{file} to #{target_file}"
 
-# Copy movie to S3
-system "aws s3 cp \"#{file}\" s3://ryanbreen.media/"
+# If the file hasn't already been copied to S3, do so now.
+s3_size = `aws s3 ls "s3://ryanbreen.media/#{File.basename(file)}" | cut -d\\  -f 3`
+local_size = `ls -l "#{file}" | cut -d\\  -f 8`
+if s3_size != local_size
+  # Copy movie to S3
+  system "aws s3 cp \"#{file}\" s3://ryanbreen.media/"
+end
 
 # Run VM
 system({"INPUT_FILE" => File.basename(file), "TARGET_FILE" => target_file}, "vagrant up --provider=aws")
