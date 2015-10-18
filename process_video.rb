@@ -5,11 +5,13 @@ def usage
 end
 
 require 'fileutils'
+require "highline/import"
 
 usage unless ARGV.length == 1
 
 file = ARGV[0]
 target_file = "#{File.basename(file, File.extname(file))}.x265.mkv"
+fq_target_file = File.join(File.dirname(file), target_file)
 puts "Converting #{file} to #{target_file}"
 
 # If the file hasn't already been copied to S3, do so now.
@@ -29,4 +31,19 @@ system "vagrant destroy -f"
 # Copy movie down
 system "aws s3 cp \"s3://ryanbreen.media/#{target_file}\" \"#{File.dirname(file)}\""
 
-FileUtils.touch File.join(File.dirname(file), target_file), :mtime => File.mtime(file)
+FileUtils.touch fq_target_file, :mtime => File.mtime(file)
+
+vlc = fork do
+  exec "open \"#{fq_target_file}\""
+end
+
+Process.detach(vlc)
+
+new_file = "#{File.basename(file, File.extname(file))}.mkv"
+fq_new_file = File.join(File.dirname(file), new_file)
+
+input = ask "Should we replace the source file and rename the new version to? (yes/no)"
+if input == "yes"
+  File.delete file
+  File.rename fq_target_file, fq_new_file
+end
