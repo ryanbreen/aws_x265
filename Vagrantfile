@@ -26,8 +26,9 @@ Vagrant.configure("2") do |config|
 
     $script = <<SCRIPT
 . ~/.bashrc
+if test -f "#{ENV['INPUT_FILE']}"; then exit;fi
 aws s3 cp "s3://ryanbreen.media/#{ENV['INPUT_FILE']}" .
-HandBrakeCLI -e x265 -q 20.0 -a 1,1 -E ffaac,copy:ac3 -B 160,160 -6 dpl2,none -R Auto,Auto -D 0.0,0.0 -f mkv --decomb --loose-anamorphic --modulus 2 -m --x265-preset medium --h265-profile main --h265-level 4.1 -i "#{ENV['INPUT_FILE']}" -o "#{ENV['TARGET_FILE']}"
+HandBrakeCLI -e x265 -f mkv --x265-preset fast --h265-profile main --h265-level 4.1 -i "#{ENV['INPUT_FILE']}" -o "#{ENV['TARGET_FILE']}"
 aws s3 cp "#{ENV['TARGET_FILE']}" s3://ryanbreen.media/
 SCRIPT
 

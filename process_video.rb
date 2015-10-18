@@ -25,4 +25,4 @@ system({"INPUT_FILE" => File.basename(file), "TARGET_FILE" => target_file}, "vag
 system "vagrant destroy -f"
 
 # Copy movie down
-system "aws s3 cp s3://ryanbreen.media/#{target_file} #{File.dirname(file)}"
+system "aws s3 cp \"s3://ryanbreen.media/#{target_file}\" \"#{File.dirname(file)}\""
