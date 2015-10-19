@@ -31,6 +31,10 @@ system "vagrant destroy -f"
 # Copy movie down
 system "aws s3 cp \"s3://ryanbreen.media/#{target_file}\" \"#{File.dirname(file)}\""
 
+# Delete original and source from s3
+system "aws s3 rm \"s3://ryanbreen.media/#{target_file}\""
+system "aws s3 rm \"s3://ryanbreen.media/#{File.basename(file)}\""
+
 FileUtils.touch fq_target_file, :mtime => File.mtime(file)
 
 vlc = fork do
